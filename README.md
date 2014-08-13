@@ -1,7 +1,7 @@
 LE - Letters Enhancer
 =======
 
-These are functions I find useful working with text. Useful enough to make my own implementation with blackjack and hookers.
+These are functions I find useful working with text. Useful enough to make my own implementation. They are tested with STL strings and plain chars, but I presume they will do just fine with all the similar string implementations. You can retypedef Char and String to try it out.
 
 "split" makes a vector<String> out of String via Char or String:
 
