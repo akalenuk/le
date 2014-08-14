@@ -29,12 +29,12 @@ namespace LE{
     // exceptions
 
     struct LEDivByZeroException : public runtime_error{
-        LEDivByZeroException(const string& message) : runtime_error(message){
+        LEDivByZeroException(const String& message) : runtime_error(message){
         }
     };
 
     struct LEExpessionSyntaxException : public runtime_error{
-        LEExpessionSyntaxException(const string& message) : runtime_error(message){
+        LEExpessionSyntaxException(const String& message) : runtime_error(message){
         }
     };
 
@@ -560,11 +560,30 @@ namespace LE{
 
 
     // calc
+	size_t find_matching_bracket(String str, size_t start){
+	    String::iterator strIt = str.begin() + start;
+    	String::iterator strItE = str.end();
+		int depth = 0;
+		int pos = start;
+		for( ; strIt != strItE; ++strIt, pos++){
+			if( (*strIt) == '(' ){
+				depth++;
+			}
+			if( (*strIt) == ')' ){
+				depth--;
+				if( depth == 0 ){
+					return pos;
+				}
+			}
+		}
+		return String::npos;
+	}
+
 
     String calc(const String& Exp){
         String S = replace(Exp, ' ', "");
-        string::iterator SIt = S.begin();
-        string::iterator SItE = S.end();
+        String::iterator SIt = S.begin();
+        String::iterator SItE = S.end();
         for(; SIt != SItE; ++SIt){
             if( not (*SIt >= '(' and *SIt <= '9' and *SIt != ',') ){
                 throw LEExpessionSyntaxException("Uncalculatable symbols in: \"" + S + "\"");
@@ -572,7 +591,7 @@ namespace LE{
         }
 
         size_t ob = S.find_first_of('(');
-        size_t cb = S.find_last_of(')');
+        size_t cb = find_matching_bracket( S, ob );
         if(ob!=String::npos and cb!=String::npos){
             return calc(S.substr(0, ob) + calc(S.substr(ob+1, cb-ob-1)) + S.substr(cb+1, String::npos));
         }else if(ob==String::npos and cb==String::npos){
@@ -605,83 +624,6 @@ namespace LE{
             return accumulate(calc_pluses.begin()+1, calc_pluses.end(), calc_pluses[0], add);
         }else{
             throw LEExpessionSyntaxException("Brackets problem in: " + Exp);
-        }
-    }
-
-
-    // tests
-
-    void test(){
-        const string test_array[6] = {""," and ","y things. <", " href='","y","'>!"};
-        const vector<string> test_vector(test_array, test_array+6);
-
-        cout << " +++ split, join, replace: \n";
-        vector<string> splitted = LE::split("dirt and dirty things. <dirt href='dirtydirt'>!", "dirt");
-        cout << "split by string - " << (splitted == test_vector) << "\n";
-
-        string joined = LE::join(test_vector, '*');
-        cout << "join by char - " << (joined == "* and *y things. <* href='*y*'>!") << "\n",
-
-        splitted = LE::split(joined, '*');
-        cout << "split by char - " << (splitted == test_vector) << "\n";
-
-        joined = LE::join(splitted, "icecream");
-        cout << "join by string - " << (joined == "icecream and icecreamy things. <icecream href='icecreamyicecream'>!") << "\n";
-        string replaced = LE::replace("dirt and dirty things. <dirt href='dirtydirt'>!", "dirt", "icecream");
-        cout << "replace - " << (replaced == "icecream and icecreamy things. <icecream href='icecreamyicecream'>!") << "\n";
-
-        cout <<  "text - " << (LE::text(123) == "123") << "\n";
-        cout <<  "untext <int> - " << (LE::untext<int>("123") == 123) << "\n";
-
-        cout << "calc - " << (LE::calc("2 * ( 4 + 3.00/ (4+3) ) + 1") == "9.84") << "\n";
-    }
-
-    void calc_test(){
-        cout << "\n +++ calc basic test:\n";
-        cout <<  "us_add - " << (LE::us_add("1128", "896.98") == "2024.98") << "\n";
-        cout <<  "us_sub - " << (LE::us_sub("1128", "896.98") == "231.02") << "\n";
-        cout <<  "us_sub (neg) - " << (LE::us_sub("896.98", "1128") == "-231.02") << "\n";
-
-        cout <<  "us_mul1 - " << (LE::us_mul1("896.98", '9') == "8072.82") << "\n";
-        cout <<  "mul10 - " << (LE::mul_10(LE::mul_10(LE::mul_10("123.45"))) == "123450") << "\n";
-        cout <<  "div10 - " << (LE::div_10(LE::div_10(LE::div_10("123"))) == "0.123") << "\n";
-        cout <<  "us_mul - " << (LE::us_mul("896.98", "1128") == "1011793.44") << "\n";
-        cout <<  "us_mul (point) - " << (LE::us_mul("1234", "5.6") == "6910.4") << "\n";
-
-        cout <<  "us_div - " << (LE::us_div("2.5", "8.9") == "0.2") << "\n";
-        cout <<  "int_div - " << (LE::int_div("1234567", "89") == "13871") << "\n";
-        cout <<  "us_div - " << (LE::us_div("1234.567", "8.9") == "138.715") << "\n";
-    }
-
-    void calc_mass_test(){
-        cout << "\n +++ -99 .. 99 test...\n";
-        unsigned int fails = 0;
-        for(int i=-99; i<=99; i++){
-            for(int j=-99; j<=99; j++){
-                if(LE::add(LE::text(i), LE::text(j)) != LE::text(i+j)){
-                    cout << (LE::text(i) + " + " + LE::text(j) + " != " + LE::text(i+j) + "     (" + LE::add(LE::text(i), LE::text(j)) + ")") << "\n";
-                    fails++;
-                }
-                if(LE::sub(LE::text(i), LE::text(j)) != LE::text(i-j)){
-                    cout << (LE::text(i) + " - " + LE::text(j) + " != " + LE::text(i-j) + "     (" + LE::sub(LE::text(i), LE::text(j)) + ")") << "\n";
-                    fails++;
-                }
-                if(LE::mul(LE::text(i), LE::text(j)) != LE::text(i*j)){
-                    cout << (LE::text(i) + " * " + LE::text(j) + " != " + LE::text(i*j) + "     (" + LE::mul(LE::text(i), LE::text(j)) + ")") << "\n";
-                    fails++;
-                }
-                if(j != 0){
-                    if(LE::div(LE::text(i), LE::text(j)) != LE::text(i/j)){
-                        cout << (LE::text(i) + " / " + LE::text(j) + " != " + LE::text(i/j) + "     (" + LE::div(LE::text(i), LE::text(j)) + ")") << "\n";
-                        fails++;
-                    }
-                }
-            }
-        }
-        if(fails == 0){
-            cout << "passed! \n";
-        }else{
-            cout << "failed " << fails << " times.";
         }
     }
 }

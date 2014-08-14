@@ -49,8 +49,6 @@
 		</Linker>
 		<Unit filename="le.cpp" />
 		<Unit filename="le.h" />
-		<Unit filename="le_calc.cpp" />
-		<Unit filename="le_calc.h" />
 		<Unit filename="le_test.cpp" />
 		<Unit filename="le_test.h" />
 		<Unit filename="main.cpp" />
