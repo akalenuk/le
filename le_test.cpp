@@ -30,7 +30,7 @@ namespace LE{
         cout << "\tsplit by string - " << (splitted == test_vector) << "\n";
 
         string joined = LE::join(test_vector, '*');
-        cout << "\tjoin by char - " << (joined == "* and *y things. <* href='*y*'>!") << "\n",
+        cout << "\tjoin by char - " << (joined == "* and *y things. <* href='*y*'>!") << "\n";
 
         splitted = LE::split(joined, '*');
         cout << "\tsplit by char - " << (splitted == test_vector) << "\n";
